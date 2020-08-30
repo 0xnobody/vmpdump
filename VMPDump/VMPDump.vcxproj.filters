@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Imports">
+      <UniqueIdentifier>{0ced714f-5396-43d5-812c-4e8ca92e5ab2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instruction Parser">
+      <UniqueIdentifier>{6bab3e38-9146-4d92-8f34-4d8c972f02f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Third Party">
+      <UniqueIdentifier>{2ca057a0-09dc-4812-bbfe-a399771bcb3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Reconstruction">
+      <UniqueIdentifier>{4d499fea-89e4-434d-a85f-20fdf13e4944}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Third Party\winpe">
+      <UniqueIdentifier>{808081d2-bc36-49e7-b647-fff02845de40}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="disassembler.hpp">
+      <Filter>Instruction Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="instruction.hpp">
+      <Filter>Instruction Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="instruction_stream.hpp">
+      <Filter>Instruction Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="instruction_utilities.hpp">
+      <Filter>Instruction Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="imports.hpp">
+      <Filter>Imports</Filter>
+    </ClInclude>
+    <ClInclude Include="vmpdump.hpp">
+      <Filter>Imports</Filter>
+    </ClInclude>
+    <ClInclude Include="module_view.hpp">
+      <Filter>Reconstruction</Filter>
+    </ClInclude>
+    <ClInclude Include="winpe\dir_export.hpp">
+      <Filter>Third Party\winpe</Filter>
+    </ClInclude>
+    <ClInclude Include="winpe\dir_iat.hpp">
+      <Filter>Third Party\winpe</Filter>
+    </ClInclude>
+    <ClInclude Include="winpe\dir_import.hpp">
+      <Filter>Third Party\winpe</Filter>
+    </ClInclude>
+    <ClInclude Include="winpe\dir_load_config.hpp">
+      <Filter>Third Party\winpe</Filter>
+    </ClInclude>
+    <ClInclude Include="winpe\dir_relocs.hpp">
+      <Filter>Third Party\winpe</Filter>
+    </ClInclude>
+    <ClInclude Include="winpe\dir_resource.hpp">
+      <Filter>Third Party\winpe</Filter>
+    </ClInclude>
+    <ClInclude Include="winpe\dir_tls.hpp">
+      <Filter>Third Party\winpe</Filter>
+    </ClInclude>
+    <ClInclude Include="winpe\image.hpp">
+      <Filter>Third Party\winpe</Filter>
+    </ClInclude>
+    <ClInclude Include="winpe\nt_headers.hpp">
+      <Filter>Third Party\winpe</Filter>
+    </ClInclude>
+    <ClInclude Include="winpe\common.hpp">
+      <Filter>Third Party\winpe</Filter>
+    </ClInclude>
+    <ClInclude Include="winpe\debug.hpp">
+      <Filter>Third Party\winpe</Filter>
+    </ClInclude>
+    <ClInclude Include="winpe\dir_debug.hpp">
+      <Filter>Third Party\winpe</Filter>
+    </ClInclude>
+    <ClInclude Include="winpe\dir_exceptions.hpp">
+      <Filter>Third Party\winpe</Filter>
+    </ClInclude>
+    <ClInclude Include="pe_image.hpp">
+      <Filter>Reconstruction</Filter>
+    </ClInclude>
+    <ClInclude Include="pe_constructor.hpp">
+      <Filter>Reconstruction</Filter>
+    </ClInclude>
+    <ClInclude Include="tables.hpp">
+      <Filter>Reconstruction</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="disassembler.cpp">
+      <Filter>Instruction Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="instruction.cpp">
+      <Filter>Instruction Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="instruction_stream.cpp">
+      <Filter>Instruction Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="vmpdump.cpp">
+      <Filter>Imports</Filter>
+    </ClCompile>
+    <ClCompile Include="module_view.cpp">
+      <Filter>Reconstruction</Filter>
+    </ClCompile>
+    <ClCompile Include="pe_constructor.cpp">
+      <Filter>Reconstruction</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

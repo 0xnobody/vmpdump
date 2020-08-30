@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{e68c36ff-75ee-4b01-9661-b3ab67480ee4}</ProjectGuid>
+    <RootNamespace>VMPDump</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\NativeLifters-Core\includes;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\out\build\x64-Debug\_deps\capstone-src\include;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\out\build\x64-Debug\_deps\keystone-src\include;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\Dependencies\VTIL-Core\VTIL-Architecture\includes;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\Dependencies\VTIL-Core\VTIL-Common\includes;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\Dependencies\VTIL-Core\VTIL-Compiler\includes;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\Dependencies\VTIL-Core\VTIL-SymEx\includes</IncludePath>
+    <LibraryPath>C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\out\build\x64-Debug\NativeLifters-Core;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\out\build\x64-Debug\_deps\capstone-build;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\out\build\x64-Debug\_deps\keystone-build\llvm\lib;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\out\build\x64-Debug\Dependencies\VTIL-Core\VTIL-Architecture;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\out\build\x64-Debug\Dependencies\VTIL-Core\VTIL-Common;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\out\build\x64-Debug\Dependencies\VTIL-Core\VTIL-Compiler;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\out\build\x64-Debug\Dependencies\VTIL-Core\VTIL-SymEx;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\NativeLifters-Core\includes;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\out\build\x64-Debug\_deps\capstone-src\include;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\out\build\x64-Debug\_deps\keystone-src\include;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\Dependencies\VTIL-Core\VTIL-Architecture\includes;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\Dependencies\VTIL-Core\VTIL-Common\includes;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\Dependencies\VTIL-Core\VTIL-Compiler\includes;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\Dependencies\VTIL-Core\VTIL-SymEx\includes</IncludePath>
+    <LibraryPath>C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\out\build\x64-Release\NativeLifters-Core;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\out\build\x64-Release\_deps\capstone-build;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\out\build\x64-Release\_deps\keystone-build\llvm\lib;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\out\build\x64-Release\Dependencies\VTIL-Core\VTIL-Architecture;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\out\build\x64-Release\Dependencies\VTIL-Core\VTIL-Common;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\out\build\x64-Release\Dependencies\VTIL-Core\VTIL-Compiler;C:\Users\adamn\Documents\GitHub\VTIL-NativeLifters\out\build\x64-Release\Dependencies\VTIL-Core\VTIL-SymEx;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);NativeLifters-Core.lib;capstone.lib;VTIL-Architecture.lib;VTIL-Common.lib;VTIL-Compiler.lib;VTIL-SymEx.lib;keystone.lib;Shlwapi.lib</AdditionalDependencies>
+      <AdditionalOptions>/STACK:34359738368 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies);NativeLifters-Core.lib;capstone.lib;VTIL-Architecture.lib;VTIL-Common.lib;VTIL-Compiler.lib;VTIL-SymEx.lib;keystone.lib;Shlwapi.lib</AdditionalDependencies>
+      <AdditionalOptions>/STACK:34359738368 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="disassembler.hpp" />
+    <ClInclude Include="imports.hpp" />
+    <ClInclude Include="instruction.hpp" />
+    <ClInclude Include="instruction_stream.hpp" />
+    <ClInclude Include="instruction_utilities.hpp" />
+    <ClInclude Include="module_view.hpp" />
+    <ClInclude Include="pe_constructor.hpp" />
+    <ClInclude Include="pe_image.hpp" />
+    <ClInclude Include="tables.hpp" />
+    <ClInclude Include="vmpdump.hpp" />
+    <ClInclude Include="winpe\common.hpp" />
+    <ClInclude Include="winpe\debug.hpp" />
+    <ClInclude Include="winpe\dir_debug.hpp" />
+    <ClInclude Include="winpe\dir_exceptions.hpp" />
+    <ClInclude Include="winpe\dir_export.hpp" />
+    <ClInclude Include="winpe\dir_iat.hpp" />
+    <ClInclude Include="winpe\dir_import.hpp" />
+    <ClInclude Include="winpe\dir_load_config.hpp" />
+    <ClInclude Include="winpe\dir_relocs.hpp" />
+    <ClInclude Include="winpe\dir_resource.hpp" />
+    <ClInclude Include="winpe\dir_tls.hpp" />
+    <ClInclude Include="winpe\image.hpp" />
+    <ClInclude Include="winpe\nt_headers.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="disassembler.cpp" />
+    <ClCompile Include="instruction.cpp" />
+    <ClCompile Include="instruction_stream.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="module_view.cpp" />
+    <ClCompile Include="pe_constructor.cpp" />
+    <ClCompile Include="vmpdump.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
