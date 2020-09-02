@@ -12,6 +12,8 @@
 
 namespace vmpdump
 {
+    // Structure used to return raw import stub analysis information.
+    //
     struct import_stub_analysis
     {
         uintptr_t thunk_rva;
@@ -22,117 +24,122 @@ namespace vmpdump
     };
 
     // Attempts to generate structures from the provided call EA and instruction_stream of a VMP import stub.
+    // Returns empty {} if the import stub failed analysis (and therefore is an invalid stub).
     //
     std::optional<import_stub_analysis> analyze_import_stub( const instruction_stream& stream )
     {
         using namespace vtil;
 
-        try
+        // Lift the given instruction stream to VTIL.
+        //
+        basic_block* lifted_block = stream.lift();
+
+        // Get the iterator just before the VMEXIT at the end.
+        // This is the baseline we'll be using to see how certain registers / stack variables changed during the stub.
+        //
+        vtil::basic_block::const_iterator iterator = std::prev( lifted_block->end() );
+
+        // Verify that the last instruction is a JMP to a register.
+        //
+        if ( iterator->base->name != "jmp" || !iterator->operands[ 0 ].is_register() )
+            return {};
+
+        // Trace each variable that we'll be using to analyze the stub.
+        //
+        cached_tracer tracer;
+        symbolic::expression::reference dest_expression = tracer.trace( { iterator, iterator->operands[ 0 ].reg() } );
+        symbolic::expression::reference sp_expression = tracer.trace( { iterator, REG_SP } );
+        symbolic::expression::reference retaddr_expression = tracer.trace( { iterator, { sp_expression, 64 } } );
+
+#ifdef _DEBUG
+        logger::log<logger::CON_CYN>( "** Import stub analysis: dest_expression: %s sp_expression: %s retaddr_expression: %s\r\n", dest_expression, sp_expression, retaddr_expression );
+#endif
+
+        // Check if the retaddr expression matches the [CONST] + CONST expression.
+        // TODO: rewrite this in a nicer way.
+        //
+        uint64_t thunk_rva = 0;
+        uint64_t dest_offset = 0;
+        bool matched = false;
         {
-            basic_block* lifted_block = stream.lift();
-
-            auto iterator = std::prev( lifted_block->end() );
-
-            if ( iterator->operands.size() != 1 || !iterator->operands[ 0 ].is_register() )
-                return {};
-
-            cached_tracer tracer;
-            auto dest_expression = tracer.trace( { iterator, iterator->operands[ 0 ].reg() } );
-            auto sp_expression = tracer.trace( { iterator, REG_SP } );
-            auto retaddr_expression = tracer.trace( { iterator, { sp_expression, 64 } } );
-
-            //logger::log<logger::CON_CYN>( "dest_expression: %s sp_expression: %s retaddr_expression: %s\r\n", dest_expression, sp_expression, retaddr_expression );
-
-            uint64_t thunk_rva = 0;
-            uint64_t dest_offset = 0;
-
-            bool matched = false;
+            symbolic::expression::reference lhs = dest_expression->lhs;
+            symbolic::expression::reference rhs = dest_expression->rhs;
+            if ( lhs && rhs && lhs->is_variable() )
             {
-                auto lhs = dest_expression->lhs;
-                auto rhs = dest_expression->rhs;
+                symbolic::variable lhs_var = lhs->uid.get<symbolic::variable>();
 
-                if ( lhs && rhs && lhs->is_variable() )
+                if ( std::optional<uint64_t> rhs_const = rhs->get<uint64_t>() )
                 {
-                    auto lhs_var = lhs->uid.get<symbolic::variable>();
-
-                    if ( auto rhs_const = rhs->get<uint64_t>() )
+                    dest_offset = *rhs_const;
+                    if ( lhs_var.is_memory() )
                     {
-                        dest_offset = *rhs_const;
-                        if ( lhs_var.is_memory() )
+                        if ( std::optional<uint64_t> pointer_val = lhs_var.mem().base.base->get<uint64_t>() )
                         {
-                            if ( auto pointer_val = lhs_var.mem().base.base->get<uint64_t>() )
-                            {
-                                thunk_rva = *pointer_val;
-                                matched = true;
-                            }
+                            thunk_rva = *pointer_val;
+                            matched = true;
                         }
                     }
                 }
             }
-
-            if ( !matched )
-                return {};
-
-            symbolic::expression::reference retaddr_sp_exp;
-
-            // Check if return address is padded.
-            //
-            bool pad = false;
-            {
-                auto lhs = retaddr_expression->lhs;
-                auto rhs = retaddr_expression->rhs;
-
-                if ( lhs && rhs && lhs->is_variable() && rhs->is_constant() )
-                {
-                    uint32_t constant = *rhs->get<uint32_t>();
-
-                    if ( constant != 1 )
-                        logger::log<logger::CON_PRP>( "** Warning: Unexpected value for padding: 0x%lx\r\n", constant );
-
-                    pad = true;
-
-                    // Set retaddr sp exp to [lhs].
-                    //
-                    retaddr_sp_exp = lhs->uid.get<symbolic::variable>().mem().base.base;
-                }
-                else
-                    retaddr_sp_exp = retaddr_expression->uid.get<symbolic::variable>().mem().base.base;
-            }
-
-            //logger::log<logger::CON_CYN>( "retaddr_sp_exp: %s\r\n", retaddr_sp_exp );
-
-            // Subtract initial SP from final SP to get the SP adjustment.
-            //
-            auto stack_adjustment_expr = ( sp_expression - symbolic::CTX( lifted_block->begin() )[ REG_SP ] ).simplify( true );
-            //logger::log<logger::CON_CYN>( "stack_adjustment_expr: %s\r\n", stack_adjustment_expr );
-
-            // Check if is jmp.
-            //
-            bool is_jmp = retaddr_sp_exp->equals( *sp_expression ) && *stack_adjustment_expr.get<int32_t>() >= 8;
-            //logger::log<logger::CON_CYN>( "is_jmp: %d\r\n", is_jmp );
-
-            if ( !stack_adjustment_expr.is_constant() )
-                return {};
-
-            // If is jump, expect stack adjustment of -0x8 to account for the initial call stub.
-            //
-            int32_t sp_adjustment = *stack_adjustment_expr.get<int32_t>() - ( is_jmp ? 8 : 0 );
-
-            return
-                import_stub_analysis{
-                    thunk_rva,
-                    dest_offset,
-                    sp_adjustment,
-                    pad,
-                    is_jmp
-            };
         }
-        catch ( std::exception& ex )
-        {
-            logger::log( "%s", ex.what() );
-
+        if ( !matched )
             return {};
+
+        symbolic::expression::reference retaddr_sp_exp;
+
+        // Check if return address is padded.
+        // TODO: rewrite this in a nicer way.
+        //
+        bool pad = false;
+        {
+            symbolic::expression::reference lhs = retaddr_expression->lhs;
+            symbolic::expression::reference rhs = retaddr_expression->rhs;
+
+            if ( lhs && rhs && lhs->is_variable() && rhs->is_constant() )
+            {
+                uint32_t constant = *rhs->get<uint32_t>();
+
+                if ( constant != 1 )
+                    logger::log<logger::CON_PRP>( "** Warning: Unexpected value for padding: 0x%lx\r\n", constant );
+
+                pad = true;
+
+                // Set retaddr sp exp to [lhs].
+                //
+                retaddr_sp_exp = lhs->uid.get<symbolic::variable>().mem().base.base;
+            }
+            else
+                retaddr_sp_exp = retaddr_expression->uid.get<symbolic::variable>().mem().base.base;
         }
+
+#ifdef _DEBUG
+        logger::log<logger::CON_CYN>( "** Import stub analysis: retaddr_sp_exp: %s\r\n", retaddr_sp_exp );
+#endif
+
+        // Subtract initial SP from final SP to get the SP adjustment.
+        //
+        symbolic::expression stack_adjustment_expr = ( sp_expression - symbolic::CTX( lifted_block->begin() )[ REG_SP ] ).simplify( true );
+#ifdef _DEBUG
+        logger::log<logger::CON_CYN>( "** Import stub analysis: stack_adjustment_expr: %s\r\n", stack_adjustment_expr );
+#endif
+
+        // Check if is jmp.
+        //
+        bool is_jmp = retaddr_sp_exp->equals( *sp_expression ) && *stack_adjustment_expr.get<int32_t>() >= 8;
+#ifdef _DEBUG
+        logger::log<logger::CON_CYN>( "** Import stub analysis: is_jmp: %d\r\n", is_jmp );
+#endif
+
+        if ( !stack_adjustment_expr.is_constant() )
+            return {};
+
+        // If is jump, expect stack adjustment of -0x8 to account for the initial call stub.
+        //
+        int32_t sp_adjustment = *stack_adjustment_expr.get<int32_t>() - ( is_jmp ? 8 : 0 );
+
+        // Construct the analysis result object.
+        //
+        return import_stub_analysis { thunk_rva, dest_offset, sp_adjustment, pad, is_jmp };
     }
 
     // Scans the specified code range for any import calls and imports.
@@ -213,7 +220,7 @@ namespace vmpdump
                     //
                     if ( std::optional<import_stub_analysis> stub_analysis = analyze_import_stub( stream ) )
                     {
-                        //vtil::logger::log<vtil::logger::CON_GRN>( "0x%p\r\n", ins.ins.address );
+                        // vtil::logger::log<vtil::logger::CON_GRN>( "** Resolved import stub @ 0x%p\r\n", ins.ins.address );
 
                         // Compute the ea of the function, in the target process.
                         //
@@ -237,6 +244,8 @@ namespace vmpdump
                             code_start++;
                         }
                     }
+                    else
+                        vtil::logger::log<vtil::logger::CON_PRP>( "** Potentially skipped import call @ RVA 0x%p\r\n", ins.ins.address );
                 }
             }
 
@@ -250,15 +259,17 @@ namespace vmpdump
     //
     bool vmpdump::scan_for_imports( std::map<uint64_t, resolved_import>& resolved_imports, std::vector<import_call>& import_calls, uint32_t flags )
     {
+        using namespace win;
+
         bool failed = false;
 
-        auto nt = target_module_view->local_module.get_image()->get_nt_headers();
+        nt_headers_t<true>* nt = target_module_view->local_module.get_image()->get_nt_headers();
 
         // Enumerate image sections.
         //
         for ( int i = 0; i < nt->file_header.num_sections; i++ )
         {
-            auto section = nt->get_section( i );
+            section_header_t* section = nt->get_section( i );
 
             if ( section->characteristics.mem_read && section->characteristics.mem_execute && section->characteristics.cnt_code )
                 failed |= !scan_for_imports( section->virtual_address, section->virtual_size, resolved_imports, import_calls, flags );
@@ -303,7 +314,7 @@ namespace vmpdump
 
         // Assemble a jump.
         //
-        auto jump = vtil::amd64::assemble( vtil::format::str( "jmp [0x%p]", thunk ), target_module_view->module_base + stub_rva );
+        std::vector<uint8_t> jump = vtil::amd64::assemble( vtil::format::str( "jmp [0x%p]", thunk ), target_module_view->module_base + stub_rva );
 
         // Sanity-check the size.
         //
@@ -391,7 +402,7 @@ namespace vmpdump
         // We assemble this call as if we're in the target process address-space.
         // This is because we want to give the assembler the freedom to potentially make a non-relative call if it desires.
         //
-        auto converted_call = vtil::amd64::assemble( vtil::format::str( "%s [0x%p]", call.is_jmp ? "jmp" : "call", thunk ), target_module_view->module_base + fill_rva );
+        std::vector<uint8_t> converted_call = vtil::amd64::assemble( vtil::format::str( "%s [0x%p]", call.is_jmp ? "jmp" : "call", thunk ), target_module_view->module_base + fill_rva );
 
         // Ensure assembly succeeded.
         //

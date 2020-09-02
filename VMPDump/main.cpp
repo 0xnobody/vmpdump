@@ -17,48 +17,49 @@ using namespace vtil::logger;
 
 namespace vmpdump
 {
-    extern "C" int main( int argc, char* argv[] )
+    // User-provided settings.
+    //
+    struct vmpdump_settings
     {
-#ifndef _DEBUG
+        uint32_t target_pid;
+        std::string module_name;
+        std::optional<uint32_t> ep_rva;
+        bool disable_relocation;
+    };
+
+    // Attempts to parse the given argument list into vmpdump settings.
+    //
+    std::optional<vmpdump_settings> parse_settings( const std::vector<std::string>& arguments )
+    {
         // Ensure required argument count.
         //
-        if ( argc < 3 )
-        {
-            log<CON_RED>( "** Invalid arguments provided\r\n" );
-            return 0;
-        }
-
-        std::vector<std::string> args;
-        for ( int i = 0; i < argc; i++ )
-            args.push_back( { argv[ i ] } );
+        if ( arguments.size() < 3 )
+            return {};
 
         // Fetch target PID.
         //
         uint32_t pid = 0;
-        ( std::stringstream( args[ 1 ] ) ) >> pid;
+        ( std::stringstream( arguments[ 1 ] ) ) >> pid;
 
         // Try to parse hex.
         if ( pid == 0 )
-            ( std::stringstream( args[ 1 ] ) ) >> std::hex >> pid;
+            ( std::stringstream( arguments[ 1 ] ) ) >> std::hex >> pid;
 
         // Ensure PID validity.
         //
         if ( pid == 0 )
-        {
-            log<CON_RED>( "** Invalid PID 0x%lx provided\r\n", pid );
-            return 0;
-        }
+            return {};
 
         // Fetch target module name.
         //
-        std::string target_module_name = args[ 2 ];
+        std::string target_module_name = arguments[ 2 ];
 
         std::optional<uint32_t> ep_rva = {};
         bool disable_relocation = false;
 
         // Fetch any other arguments.
         //
-        for ( const std::string& arg : args )
+        for ( const std::string& arg : arguments )
         {
             // Should we overwrite the entry point with the user-provided EP?
             //
@@ -79,18 +80,39 @@ namespace vmpdump
                 continue;
             }
         }
+
+        return vmpdump_settings { pid, target_module_name, ep_rva, disable_relocation };
+    }
+
+    extern "C" int main( int argc, char* argv[] )
+    {
+        std::optional<vmpdump_settings> settings = {};
+
+#ifndef _DEBUG
+        // Convert C-Style array to C++ vector.
+        //
+        std::vector<std::string> arguments;
+        for ( int i = 0; i < argc; i++ )
+            arguments.push_back( { argv[ i ] } );
+
+        // Try to parse arguments.
+        //
+        settings = parse_settings( arguments );
 #else
-        uint32_t pid = 0x5728;
-        std::string target_module_name = "";
-        std::optional<uint32_t> ep_rva = {};
-        bool disable_relocation = true;
+        settings = { 0x720, "", {}, true };
 #endif
 
-        std::unique_ptr<vmpdump> instance = vmpdump::from_pid( pid );
+        if ( !settings )
+        {
+            log<CON_RED>( "** Failed to parse provided arguments\r\n" );
+            return 0;
+        }
+
+        std::unique_ptr<vmpdump> instance = vmpdump::from_pid( settings->target_pid );
 
         if ( !instance )
         {
-            log<CON_RED>( "** Failed to open process 0x%lx\r\n", pid );
+            log<CON_RED>( "** Failed to open process 0x%lx\r\n", settings->target_pid );
             return 0;
         }
 
@@ -211,8 +233,8 @@ namespace vmpdump
 
             for ( auto& [export_info, export_rva] : module_info.exports ) 
             {
-                auto& export_name = export_info.first;
-                auto export_ordinal = export_info.second;
+                std::string& export_name = export_info.first;
+                uint32_t export_ordinal = export_info.second;
 
                 // If not named import, import by ordinal.
                 //
@@ -284,7 +306,7 @@ namespace vmpdump
         // As we are creating a new import table, we must preserve the current one by copying it.
         //
         std::vector<import_directory> import_directories;
-        auto existing_imports_base = instance->target_module_view->local_module.raw_bytes.data() + nt->optional_header.data_directories.import_directory.rva;
+        uint8_t* existing_imports_base = instance->target_module_view->local_module.raw_bytes.data() + nt->optional_header.data_directories.import_directory.rva;
         size_t import_table_offset = 0;
         while ( true )
         {
@@ -358,13 +380,17 @@ namespace vmpdump
 
         // Update EP if provided.
         //
-        if ( ep_rva )
-            raw_nt->optional_header.entry_point = *ep_rva;
+        if ( settings->ep_rva )
+            raw_nt->optional_header.entry_point = *settings->ep_rva;
 
         // Disable relocation if requested.
         //
-        if ( disable_relocation )
+        if ( settings->disable_relocation )
             raw_nt->file_header.characteristics.relocs_stripped = true;
+
+        // Remove any integrity flags.
+        //
+        raw_nt->optional_header.characteristics.force_integrity = false;
 
         log<CON_GRN>( "** New ImageBase: 0x%llx, SizeOfImage: 0x%lx\r\n", raw_nt->optional_header.image_base, raw_nt->optional_header.size_image );
 
