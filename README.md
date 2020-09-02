@@ -17,7 +17,7 @@
  * `[-disable-reloc]`: An optional setting to instruct VMPDump to mark that relocs have been stripped in the ouput image, forcing the image to load at the dumped ImageBase. This is useful if runnable dumps are desired.
  
  VMProtect initialization and unpacking must be complete in the target process before running VMPDump. This means it must be at or past the OEP (Original Entry Point).
- The dumped and fixed image will appear in the module directory, under the name <Module Name>.VMPDump.<Module Extension>.
+ The dumped and fixed image will appear in the module directory, under the name `<Module Name>.VMPDump.<Module Extension>`.
 
 ## How It Works
  VMProtect injects stubs for every import call or jmp. These stubs resolve the 'obfuscated' thunk in the `.vmpX` section, and add a fixed constant to 'deobfuscate' it. The calls or jumps themselves are then dispatched with a ret instruction.
@@ -26,7 +26,7 @@
 
  Once all calls have been retrieved, VMPDump then creates a new import table and appends thunks to the existing IAT. The calls to the VMP import stubs are replaced with direct calls to these thunks.
 
- Note that in mutated routines, there are situations when there are not enough bytes to replace the VMP import stub call with a direct thunk call, as the former is 1 byte larger. In these cases, the section is extended and a stub that jumps to the import thunk is injected. The VMP import stub call is then replaced with a 5-byte relative call or jmp to said injected stub.
+ Note that in mutated routines, there are situations when there are not enough bytes to replace the VMP import stub call with a direct thunk call, as the latter is 1 byte larger. In these cases, the section is extended and a stub that jumps to the import thunk is injected. The VMP import stub call is then replaced with a 5-byte relative call or jmp to said injected stub.
 
 ## Building
 Building in VS is as simple as replacing the include/library directories to VTIL-NativeLifers/VTIL-Core/Keystone/Capstone in the vcxproj.
