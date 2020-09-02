@@ -4,8 +4,8 @@
  A dynamic VMP dumper and import fixer, powered by VTIL. Works for VMProtect 3.X x64.
 
 ## Before vs After
-![alt text](https://raw.githubusercontent.com/0xnobody/vmpdump/master/before.png | width=150)
-![alt text](https://raw.githubusercontent.com/0xnobody/vmpdump/master/after.png | width=150)
+![](https://raw.githubusercontent.com/0xnobody/vmpdump/master/before.png){:height="50%" width="50%"}
+![](https://raw.githubusercontent.com/0xnobody/vmpdump/master/after.png){:height="50%" width="50%"}
 
 ## Usage
  VMPDump.exe `<Target PID>` `"<Target Module>"` `[-ep=<Entry Point RVA>]` `[-disable-reloc]`
