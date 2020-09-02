@@ -7,13 +7,13 @@
 ![alt text](https://raw.githubusercontent.com/0xnobody/vmpdump/master/after.png "After")
 
 ## Usage
- VMPDump.exe <Target PID> "<Target Module>" [-ep=<Entry Point RVA>] [-disable-reloc]
+ VMPDump.exe `<Target PID>` `"<Target Module>"` `[-ep=<Entry Point RVA>]` `[-disable-reloc]`
 
  Arguments:
- * <Target PID>: The ID of the target process, in decimal or hex form.
- * <Target Module>: The name of the module which should be dumped and fixed. This can be an empty string ("") if the process image module is desired.
- * [-ep=<Entry Point RVA>]: An optionally-provided entry-point RVA. VMPDump simply overwrites the Entry Point in the optional header with this value.
- * [-disable-reloc]: An optional setting to instruct VMPDump to mark in the output image that relocs have been stripped in the image, forcing the image to load at the dumped ImageBase. This is useful if runnable dumps are desired.
+ * `<Target PID>`: The ID of the target process, in decimal or hex form.
+ * `<Target Module>`: The name of the module which should be dumped and fixed. This can be an empty string ("") if the process image module is desired.
+ * `[-ep=<Entry Point RVA>]`: An optionally-provided entry-point RVA. VMPDump simply overwrites the Entry Point in the optional header with this value.
+ * `[-disable-reloc]`: An optional setting to instruct VMPDump to mark in the output image that relocs have been stripped in the image, forcing the image to load at the dumped ImageBase. This is useful if runnable dumps are desired.
  
  VMProtect initialization and unpacking must be complete in the target process before running VMPDump. This means it must be at or past the OEP (Original Entry Point).
  The dumped and fixed image will appear in the module directory, under the name <Module Name>.VMPDump.<Module Extension>.
