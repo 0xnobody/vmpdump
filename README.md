@@ -5,7 +5,7 @@
 
 ## Before vs After
 ![](https://raw.githubusercontent.com/0xnobody/vmpdump/master/before.png)
-![](https://raw.githubusercontent.com/0xnobody/vmpdump/master/after.png
+![](https://raw.githubusercontent.com/0xnobody/vmpdump/master/after.png)
 
 ## Usage
  VMPDump.exe `<Target PID>` `"<Target Module>"` `[-ep=<Entry Point RVA>]` `[-disable-reloc]`
