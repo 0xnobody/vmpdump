@@ -56,34 +56,31 @@ namespace vmpdump
 #endif
 
         // Check if the retaddr expression matches the [CONST] + CONST expression.
-        // TODO: rewrite this in a nicer way.
         //
         uint64_t thunk_rva = 0;
         uint64_t dest_offset = 0;
-        bool matched = false;
         {
-            symbolic::expression::reference lhs = dest_expression->lhs;
-            symbolic::expression::reference rhs = dest_expression->rhs;
-            if ( lhs && rhs && lhs->is_variable() )
-            {
-                symbolic::variable lhs_var = lhs->uid.get<symbolic::variable>();
+            using namespace symbolic::directive;
 
-                if ( std::optional<uint64_t> rhs_const = rhs->get<uint64_t>() )
-                {
-                    dest_offset = *rhs_const;
-                    if ( lhs_var.is_memory() )
-                    {
-                        if ( std::optional<uint64_t> pointer_val = lhs_var.mem().base.base->get<uint64_t>() )
-                        {
-                            thunk_rva = *pointer_val;
-                            matched = true;
-                        }
-                    }
-                }
+            int64_t sign;
+            stack_vector<symbol_table_t, 2> results;
+            if ( ( sign = +1, fast_match( &results, V + U, dest_expression ) ) ||
+                 ( sign = -1, fast_match( &results, V - U, dest_expression ) ) ||
+                 ( sign = +0, fast_match( &results, V,     dest_expression ) ) )
+            {
+                auto& var = results.front().translate( V )->uid.get<symbolic::variable>();
+                if ( !var.is_memory() || !var.mem().decay()->is_constant() )
+                    return {};
+
+                thunk_rva = *var.mem().decay()->get();
+                if ( sign != 0 ) 
+                    dest_offset = sign * *results.front().translate( U )->get<true>();
+            }
+            else
+            {
+                return {};
             }
         }
-        if ( !matched )
-            return {};
 
         symbolic::expression::reference retaddr_sp_exp;
 
