@@ -108,7 +108,7 @@ namespace vmpdump
             return 0;
         }
 
-        std::unique_ptr<vmpdump> instance = vmpdump::from_pid( settings->target_pid );
+        std::unique_ptr<vmpdump> instance = vmpdump::from_pid( settings->target_pid, settings->module_name );
 
         if ( !instance )
         {
