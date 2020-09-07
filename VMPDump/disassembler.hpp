@@ -88,8 +88,9 @@ namespace vmpdump
 
         // Disassembles at the offset from the base, negotating jumps according to the flags.
         // NOTE: The offset is used for the disassembled instructions' addresses.
+        // If the number of instructions disassembled exceeds the provided max amount, en empty instruction stream is returned.
         //
-        instruction_stream disassemble( uint64_t base, uint64_t offset, disassembler_flags flags = disassembler_take_unconditional_imm );
+        instruction_stream disassemble( uint64_t base, uint64_t offset, disassembler_flags flags = disassembler_take_unconditional_imm, uint64_t max_instructions = -1 );
 
         // Disassembles at the offset from the base, simply disassembling every instruction in order.
         //

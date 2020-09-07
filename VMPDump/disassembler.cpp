@@ -2,9 +2,11 @@
 
 namespace vmpdump
 {
-    // Disassembles at the effective address, negotating jumps according to the flags.
+    // Disassembles at the offset from the base, negotating jumps according to the flags.
+    // NOTE: The offset is used for the disassembled instructions' addresses.
+    // If the number of instructions disassembled exceeds the provided max amount, en empty instruction stream is returned.
     //
-    instruction_stream disassembler::disassemble( uint64_t base, uint64_t offset, disassembler_flags flags )
+    instruction_stream disassembler::disassemble( uint64_t base, uint64_t offset, disassembler_flags flags, uint64_t max_instructions )
     {
         // ea = base + offset
         //
@@ -14,10 +16,31 @@ namespace vmpdump
 
         size_t size = 0xFFFFFFFFFFFFFFFFull;
 
+        uint64_t i = 0;
+
+        // Helper lambda to exception-wrap the disassebly.
+        // This is useful as we may be dealing with invalid instructions which may cause an access violation.
+        //
+        auto disasm = [&]() -> bool
+        {
+            __try
+            {
+                return cs_disasm_iter( handle, ( const uint8_t** )&ea, &size, &offset, insn );
+            }
+            __except ( 1 ) {}
+            return false;
+        };
+
         // While iterative disassembly is successful.
         //
-        while ( cs_disasm_iter( handle, ( const uint8_t** )&ea, &size, &offset, insn ) )
+        while ( disasm() )
         {
+            // Check max bounds.
+            //
+            if ( i >= max_instructions )
+                return instruction_stream {};
+            i++;
+
             // Construct a self-containing instruction.
             //
             auto ins = std::make_shared<instruction>( insn );

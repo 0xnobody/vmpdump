@@ -73,6 +73,11 @@ namespace vmpdump
             // Lift the single instruction.
             //
             lifter.process( block, ins->ins.address, ins->ins.bytes );
+            
+            // If block branches, end lifting.
+            //
+            if ( block->is_complete() )
+                break;
         }
 
         // Return the created basic block.

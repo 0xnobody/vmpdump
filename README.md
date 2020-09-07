@@ -17,7 +17,7 @@
  * `[-disable-reloc]`: An optional setting to instruct VMPDump to mark that relocs have been stripped in the ouput image, forcing the image to load at the dumped ImageBase. This is useful if runnable dumps are desired.
  
  VMProtect initialization and unpacking must be complete in the target process before running VMPDump. This means it must be at or past the OEP (Original Entry Point).
- The dumped and fixed image will appear in the module directory, under the name `<Module Name>.VMPDump.<Module Extension>`.
+ The dumped and fixed image will appear in the process image module directory, under the name `<Target Module Name>.VMPDump.<Target Module Extension>`.
 
 ## How It Works
  VMProtect injects stubs for every import call or jmp. These stubs resolve the 'obfuscated' thunk in the `.vmpX` section, and add a fixed constant to 'deobfuscate' it. The calls or jumps themselves are then dispatched with a ret instruction.

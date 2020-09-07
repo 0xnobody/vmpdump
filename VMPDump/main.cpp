@@ -99,7 +99,7 @@ namespace vmpdump
         //
         settings = parse_settings( arguments );
 #else
-        settings = { 0x720, "", {}, true };
+        settings = { 0x1244, "", { 0x1D420 }, true };
 #endif
 
         if ( !settings )
@@ -397,6 +397,9 @@ namespace vmpdump
         // Save module.
         //
         std::filesystem::path module_path = { instance->module_full_path };
+        module_path.remove_filename();
+        module_path /= instance->target_module_view->module_name;
+
         module_path.replace_extension( "VMPDump" + module_path.extension().string() );
         std::ofstream outfile( module_path.string(), std::ios::out | std::ios::binary );
         outfile.write( ( const char* )raw_module.raw_bytes.data(), raw_module.raw_bytes.size() );

@@ -39,6 +39,12 @@ namespace vmpdump
         instruction_stream& operator= ( instruction_stream&& ) = default;
         instruction_stream& operator= ( const instruction_stream& ) = default;
 
+        // Construct as empty.
+        //
+        instruction_stream()
+            : instructions{}, begin( 0 ), end( 0 ), index( 0 )
+        {}
+
         // Construct via copying existing instruction vector
         //
         instruction_stream( const std::vector<std::shared_ptr<instruction>>& instructions )

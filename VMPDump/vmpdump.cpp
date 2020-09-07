@@ -34,6 +34,11 @@ namespace vmpdump
         //
         basic_block* lifted_block = stream.lift();
 
+        // Ensure lifted block is valid.
+        //
+        if ( !lifted_block->is_complete() )
+            return {};
+
         // Get the iterator just before the VMEXIT at the end.
         // This is the baseline we'll be using to see how certain registers / stack variables changed during the stub.
         //
@@ -203,46 +208,50 @@ namespace vmpdump
                 uint64_t call_target_offset = ins.operand( 0 ).imm;
                 uint8_t* call_target = local_module_bytes + call_target_offset;
 
-                // VMP import stubs always begin with a NOP (0x90).
-                // Ensure the current call matches this. Unfortunately we have to use the IsBadReadPtr API here as we
-                // cannot be sure that we are dealing with valid code.
+                // Ensure that the call destination is valid memory in the first place.
                 //
-                if ( !IsBadReadPtr( call_target, 1 ) && *call_target == 0x90 )
+                if ( !IsBadReadPtr( call_target, 1 ) )
                 {
                     // Disassemble at the call target.
+                    // Max 25 instructions, in order to filter out invalid calls.
                     //
-                    instruction_stream stream = disassembler::get().disassemble( ( uint64_t )local_module_bytes, call_target_offset );
+                    instruction_stream stream = disassembler::get().disassemble( ( uint64_t )local_module_bytes, call_target_offset, disassembler_take_unconditional_imm, 25 );
 
-                    // Analyze the disassembled stream as a VMP import stub.
+                    // Perform more preliminary filtering, so we only pass the most valid calls to the costly VTIL analysis.
                     //
-                    if ( std::optional<import_stub_analysis> stub_analysis = analyze_import_stub( stream ) )
+                    if ( !stream.instructions.empty() && stream.instructions[ stream.instructions.size() - 1 ]->ins.id == X86_INS_RET )
                     {
-                        // vtil::logger::log<vtil::logger::CON_GRN>( "** Resolved import stub @ 0x%p\r\n", ins.ins.address );
-
-                        // Compute the ea of the function, in the target process.
+                        // Analyze the disassembled stream as a VMP import stub.
                         //
-                        uintptr_t target_ea = *( uintptr_t* )( local_module_bytes + stub_analysis->thunk_rva ) + stub_analysis->dest_offset;
-
-                        // If it doesn't already exist within the map, insert the import.
-                        //
-                        const resolved_import* referenced_import = &resolved_imports.insert( { stub_analysis->thunk_rva, { stub_analysis->thunk_rva, target_ea } } ).first->second;
-
-                        // Record the call to the import.
-                        //
-                        import_calls.push_back( { ins.ins.address, referenced_import, stub_analysis->stack_adjustment, stub_analysis->padding, stub_analysis->is_jmp, previous_instruction } );
-
-                        // If the call is a jump, and has no backwards (push) padding, it must be padded after the stub.
-                        // Because jumps don't return, this information won't be provided to us by the analysis, so we have
-                        // to skip the next byte to prevent potentially invalid disassembly.
-                        //
-                        if ( stub_analysis->is_jmp && stub_analysis->stack_adjustment == 0 )
+                        if ( std::optional<import_stub_analysis> stub_analysis = analyze_import_stub( stream ) )
                         {
-                            offset++;
-                            code_start++;
+                            // vtil::logger::log<vtil::logger::CON_GRN>( "** Resolved import stub @ 0x%p\r\n", ins.ins.address );
+
+                            // Compute the ea of the function, in the target process.
+                            //
+                            uintptr_t target_ea = *( uintptr_t* )( local_module_bytes + stub_analysis->thunk_rva ) + stub_analysis->dest_offset;
+
+                            // If it doesn't already exist within the map, insert the import.
+                            //
+                            const resolved_import* referenced_import = &resolved_imports.insert( { stub_analysis->thunk_rva, { stub_analysis->thunk_rva, target_ea } } ).first->second;
+
+                            // Record the call to the import.
+                            //
+                            import_calls.push_back( { ins.ins.address, referenced_import, stub_analysis->stack_adjustment, stub_analysis->padding, stub_analysis->is_jmp, previous_instruction } );
+
+                            // If the call is a jump, and has no backwards (push) padding, it must be padded after the stub.
+                            // Because jumps don't return, this information won't be provided to us by the analysis, so we have
+                            // to skip the next byte to prevent potentially invalid disassembly.
+                            //
+                            if ( stub_analysis->is_jmp && stub_analysis->stack_adjustment == 0 )
+                            {
+                                offset++;
+                                code_start++;
+                            }
                         }
+                        // else
+                        //     vtil::logger::log<vtil::logger::CON_PRP>( "** Potentially skipped import call @ RVA 0x%p\r\n", ins.ins.address );
                     }
-                    else
-                        vtil::logger::log<vtil::logger::CON_PRP>( "** Potentially skipped import call @ RVA 0x%p\r\n", ins.ins.address );
                 }
             }
 
