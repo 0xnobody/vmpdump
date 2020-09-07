@@ -9,13 +9,13 @@ namespace vmpdump
     //
     inline bool register_base_equal( x86_reg first, x86_reg second )
     {
-        return vtil::amd64::registers.remap( first, 0, 1 ) == vtil::amd64::registers.remap( second, 0, 1 );
+        return vtil::amd64::registers.resolve_mapping( first ).base_register == vtil::amd64::registers.resolve_mapping( second ).base_register;
     }
     
     // Gets the register's largest architecture equivalent.
     //
     inline x86_reg get_largest_for_arch( x86_reg reg )
     {
-        return vtil::amd64::registers.remap( reg, 0, 8 );
+        return vtil::amd64::registers.extend( reg );
     }
 }
