@@ -15,7 +15,7 @@
  * `<Target Module>`: The name of the module which should be dumped and fixed. This can be an empty string ("") if the process image module is desired.
  * `[-ep=<Entry Point RVA>]`: An optionally-provided entry-point RVA, in hex form. VMPDump simply overwrites the Entry Point in the optional header with this value.
  * `[-disable-reloc]`: An optional setting to instruct VMPDump to mark that relocs have been stripped in the ouput image, forcing the image to load at the dumped ImageBase. This is useful if runnable dumps are desired.
- 
+
  VMProtect initialization and unpacking must be complete in the target process before running VMPDump. This means it must be at or past the OEP (Original Entry Point).
  The dumped and fixed image will appear in the process image module directory, under the name `<Target Module Name>.VMPDump.<Target Module Extension>`.
 
@@ -28,14 +28,23 @@
 
  Note that in mutated routines, there are situations when there are not enough bytes to replace the VMP import stub call with a direct thunk call, as the latter is 1 byte larger. In these cases, the section is extended and a stub that jumps to the import thunk is injected. The VMP import stub call is then replaced with a 5-byte relative call or jmp to said injected stub.
 
-## Building
+## Building (CMake)
+
+```
+mkdir build && cd build
+cmake -G "Visual Studio 16 2019" ..
+cmake --build . --config Release
+```
+
+## Building (Visual Studio)
+
 Building in VS is as simple as replacing the include/library directories to VTIL-NativeLifers/VTIL-Core/Keystone/Capstone in the vcxproj.
 
 The project requires C++20.
 
 ## Issues and Limitations
  Due to the fact that code sections are linearly scanned, particularily in heavily mutated and obfuscated code, some import stub calls can be skipped and therefore not resolved. However, VMPDump includes workarounds for the majority of VMProtect mutation inconsistencies, so it should produce decent results even in heavily mutated code.
- 
+
  If you encounter this, please make an issue with the relevant information and I'll take a look at it.
 
 ## Licence
